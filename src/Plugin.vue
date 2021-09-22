@@ -65,7 +65,7 @@ export default {
         image: '',
         plugin: 'sbi-image-map',
         mapNodes: [
-           {x: 0.5, y: 0.5}
+           
         ]
       }
     },
