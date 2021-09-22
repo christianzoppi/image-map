@@ -16,7 +16,6 @@
             <MapNode 
             :number=index 
             size="small"
-            :dragging="() => isDragging(index)"
             :coords=node></MapNode>
           </li>
         </ul>
@@ -39,7 +38,9 @@
             <MapNode 
             :number=index 
             @removeNode=removeNode
-            :coords=node></MapNode>
+            @setDirection=setNodeDirection
+            :dragging="() => isDragging(index)"
+            :node=node></MapNode>
           </li>
         </ul>
       </div>
@@ -87,15 +88,6 @@ export default {
       this.$emit('toggle-modal', false)
       this.modalIsOpen = false
     },
-    updateMapNode(elPosition, index) {
-      const imageRect = this.$refs.image.getBoundingClientRect()
-      const delta_x = elPosition.left - imageRect.left
-      const delta_y = elPosition.top - imageRect.top
-      const x_coord = delta_x >= 0 && delta_x <= imageRect.width ? delta_x / imageRect.width : this.model.mapNodes[index].x
-      const y_coord = delta_y >= 0 && delta_y <= imageRect.height ? delta_y / imageRect.height : this.model.mapNodes[index].y
-      this.model.mapNodes[index] = {x: x_coord, y: y_coord}
-      this.model.mapNodes = this.model.mapNodes.slice()
-    },
     startDraggingNode(index) {
       console.log('start dragging')
       this.dragging = true
@@ -113,12 +105,13 @@ export default {
         const delta_y = event.clientY - imageRect.top
         const x_coord = delta_x >= 0 && delta_x <= imageRect.width ? delta_x / imageRect.width : this.model.mapNodes[this.dragging_index].x
         const y_coord = delta_y >= 0 && delta_y <= imageRect.height ? delta_y / imageRect.height : this.model.mapNodes[this.dragging_index].y
-        this.model.mapNodes[this.dragging_index] = {x: x_coord, y: y_coord}
+        this.model.mapNodes[this.dragging_index].x = x_coord
+        this.model.mapNodes[this.dragging_index].y = y_coord
         this.model.mapNodes = this.model.mapNodes.slice()
       }
     },
     addNode() {
-      this.model.mapNodes = [...this.model.mapNodes, {x: 0.5, y: 0.5}] 
+      this.model.mapNodes = [...this.model.mapNodes, {x: 0.5, y: 0.5, direction: null}] 
     },
     removeNode(index) {
       this.model.mapNodes.splice(index, 1)
@@ -128,6 +121,10 @@ export default {
     },
     removeImage() {
       this.model.image = ''
+    },
+    setNodeDirection(data) {
+      this.model.mapNodes[data.index].direction = data.direction
+      this.model.mapNodes = this.model.mapNodes.slice()
     }
   },
   watch: {

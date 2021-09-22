@@ -8,6 +8,7 @@
         variant="ghost"
         @click=removeNode
       />
+      <button @click="() => setDirection(item)" v-for="item in directions" :key="item" :class="['map-node__direction', `map-node__direction--${item}`, node.direction == item ? 'map-node__direction--active' : '']"></button>
     </div>
 </template>
 
@@ -18,13 +19,21 @@ export default {
   components: {
     SbButton
   },
-  props: ['coords', 'number', 'size', 'dragging'],
+  data: () => {
+    return {
+      directions: ['top', 'right', 'left', 'bottom', 'bottom-right', 'bottom-left', 'top-left', 'top-right']
+    }
+  },
+  props: ['node', 'number', 'size', 'dragging'],
   methods: {
     nodePosition() {
-      return `top: ${this.coords.y * 100}%; left: ${this.coords.x * 100}%`
+      return `top: ${this.node.y * 100}%; left: ${this.node.x * 100}%`
     },
     removeNode() {
       this.$emit('removeNode', this.number)
+    },
+    setDirection(direction) {
+      this.$emit('setDirection', {index: this.number, direction})
     }
   }
 }
@@ -46,6 +55,71 @@ export default {
     width: 30px;
   }
 
+  .map-node__direction {
+    background-color: rgb(143, 143, 143);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: block;
+    height: 10px; 
+    padding: 0;
+    position: absolute;
+    transform-origin: center;
+    width: 10px; 
+  }
+
+  .map-node__direction--active {
+    background-color: #fd5fae;
+  }
+
+  .map-node__direction--top {
+    left: 50%;
+    top: -14px;
+    transform: translateX(-50%);
+  }
+
+  .map-node__direction--left {
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .map-node__direction--right {
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .map-node__direction--bottom {
+    left: 50%;
+    bottom: -14px;
+    transform: translateX(-50%);
+  }
+
+  .map-node__direction--bottom-right {
+    bottom: -7px;
+    right: -15px;
+    transform: translateX(-50%);
+  }
+
+  .map-node__direction--bottom-left {
+    bottom: -7px;
+    left: -4px;
+    transform: translateX(-50%);
+  }
+
+  .map-node__direction--top-left {
+    top: -7px;
+    left: -4px;
+    transform: translateX(-50%);
+  }
+
+  .map-node__direction--top-right {
+    top: -7px;
+    right: -15px;
+    transform: translateX(-50%);
+  }
+
   .map-node:hover {
     cursor: grab;
   }
@@ -61,8 +135,8 @@ export default {
     min-height: unset;
     padding: 0;
     position: absolute;
-    right: -5px;
-    top: -5px;
+    right: -25px;
+    top: -25px;
     width: 15px;
   }
 
