@@ -1,11 +1,11 @@
 <template>
-    <div :class="['map-node', size === 'small' ? 'map-node--small' : '' ]" :style=nodePosition()>{{ number + 1 }}
+    <div :class="['map-node', size === 'small' ? 'map-node--small' : '', dragging ? 'map-node--dragging' : '' ]" :style=nodePosition()>{{ number + 1 }}
       <SbButton
-        variant="ghost"
+        v-if="size !== 'small'"
         icon="close"
-        icon-description="Remove"
         is-rounded
         has-icon-only
+        variant="ghost"
         @click=removeNode
       />
     </div>
@@ -18,7 +18,7 @@ export default {
   components: {
     SbButton
   },
-  props: ['coords', 'number', 'size'],
+  props: ['coords', 'number', 'size', 'dragging'],
   methods: {
     nodePosition() {
       return `top: ${this.coords.y * 100}%; left: ${this.coords.x * 100}%`
@@ -46,6 +46,10 @@ export default {
     width: 30px;
   }
 
+  .map-node:hover {
+    cursor: grab;
+  }
+
   .map-node--small {
     font-size: .3rem;
     height: 9px;
@@ -54,10 +58,15 @@ export default {
 
   .map-node .sb-button {
     height: 15px;
+    min-height: unset;
     padding: 0;
     position: absolute;
     right: -5px;
     top: -5px;
     width: 15px;
+  }
+
+  .map-node--dragging:hover {
+    cursor: grabbing;
   }
 </style>

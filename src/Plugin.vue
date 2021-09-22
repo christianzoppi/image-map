@@ -1,30 +1,35 @@
 <template>
   <div>
     <div v-show="!modalIsOpen">
-      <sb-asset-selector :uid="uid" field="image1"></sb-asset-selector>
+      <sb-asset-selector :uid="uid" field="image"></sb-asset-selector>
+      <!-- Edit/Remove Buttons -->
+      <div class="sbi-image-map__image-controls" v-if="model.image">
+        <SbButton class="sbi-image-map__button" size="small" label="Edit map" @click="openModal" />
+        <SbButton variant="danger" class="sbi-image-map__button" size="small" label="Remove image" @click="removeImage" />
+      </div>
       <!-- Preview -->
-      <div class="sbi-image-map__preview-wrapper">
+      <div class="sbi-image-map__preview-wrapper" v-if="model.image">
+        <!-- Preview -->
         <img :src="model.image" class="sbi-image-map__image-preview" />
         <ul class="sbi-image-map__nodes sbi-image-map__nodes">
           <li v-for="(node, index) in model.mapNodes" :key="index">
             <MapNode 
             :number=index 
             size="small"
+            :dragging="() => isDragging(index)"
             :coords=node></MapNode>
           </li>
         </ul>
       </div>
-      <!-- Edit Button -->
-      <SbButton @click=openModal class="sbi-image-map__button" size="small">Edit map</SbButton>
     </div>
 
     <!-- Modal -->
     <div v-if="modalIsOpen" @mouseup=stopDraggingNode>
       <!-- Controls -->
-      <div class="sbi-image-map__controls">
-        <SbButton size="small" icon="plus" class="sbi-image-map__close" @click=addNode>Add node</SbButton>
-        <SbButton size="small" icon="close" class="sbi-image-map__close" has-icon-only @click=closeModal></SbButton>
-      </div>
+      <SbGroupButton size="small" hasSpaces variant="ghost" class="sbi-image-map__controls">
+        <SbButton icon="plus" label="Add node" @click=addNode />
+        <SbButton icon="close" size="small" variant="danger" label="Close and save" @click=closeModal />
+      </SbGroupButton>
       <!-- Map -->
       <div class="sbi-image-map__image-wrapper" 
             @mousemove=dragNode>
@@ -44,12 +49,14 @@
 
 <script>
 import SbButton from 'storyblok-design-system/src/components/Button'
+import SbGroupButton from 'storyblok-design-system/src/components/GroupButton'
 import MapNode from './MapNode.vue'
 
 export default {
   mixins: [window.Storyblok.plugin],
   components: {
     SbButton,
+    SbGroupButton,
     MapNode
   },
   data() {
@@ -64,9 +71,12 @@ export default {
       return {
         image: '',
         plugin: 'sbi-image-map',
-        mapNodes: [
-           
-        ]
+        mapNodes: []
+      }
+    },
+    pluginCreated() {
+      if(!this.model.image && this.options.fallback_image) {
+        setTimeout(() => this.model.image = this.options.fallback_image, 100)
       }
     },
     openModal(){
@@ -112,6 +122,12 @@ export default {
     },
     removeNode(index) {
       this.model.mapNodes.splice(index, 1)
+    },
+    isDragging(index) {
+      return index === this.dragging_index
+    },
+    removeImage() {
+      this.model.image = ''
     }
   },
   watch: {
@@ -127,11 +143,19 @@ export default {
 
 <style>
   .sbi-image-map__button {
+    font-size: .9rem;
     margin-top: 20px;
+    padding: 10px;
+  }
+
+  .sbi-image-map__image-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .sbi-image-map__preview-wrapper {
-    margin-top: 20px;
+    margin-top: 30px;
     position: relative;
   }
 
@@ -142,6 +166,7 @@ export default {
 
   .sbi-image-map__image-wrapper {
     border: #cacaca;
+    margin-top: 30px;
     position: relative;
     user-select: none;
   }
@@ -158,13 +183,6 @@ export default {
     list-style-type: none;
     margin: 0;
     padding: 0;
-  }
-
-  .sbi-image-map__controls {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    width: 100%;
   }
 
   .sbi-image-map__close {
