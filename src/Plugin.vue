@@ -16,7 +16,7 @@
             <MapNode 
             :number=index 
             size="small"
-            :coords=node></MapNode>
+            :node=node></MapNode>
           </li>
         </ul>
       </div>
@@ -34,13 +34,14 @@
             @mousemove=dragNode>
         <img :src="model.image" class="sbi-image-map__image" ref="image" />
         <ul class="sbi-image-map__nodes">
-          <li v-for="(node, index) in model.mapNodes" :key="index" @mousedown="() => startDraggingNode(index)">
+          <li v-for="(node, index) in model.mapNodes" :key="index">
             <MapNode 
             :number=index 
+            :dragging="isDragging(index)"
+            :node=node
+            @selectedNode="() => startDraggingNode(index)"
             @removeNode=removeNode
-            @setDirection=setNodeDirection
-            :dragging="() => isDragging(index)"
-            :node=node></MapNode>
+            @setDirection=setNodeDirection></MapNode>
           </li>
         </ul>
       </div>
@@ -117,6 +118,7 @@ export default {
       this.model.mapNodes.splice(index, 1)
     },
     isDragging(index) {
+      console.log('dragging', this.dragging_index)
       return index === this.dragging_index
     },
     removeImage() {
