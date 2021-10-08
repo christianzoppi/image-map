@@ -72,7 +72,7 @@ export default {
     initWith() {
       return {
         image: '',
-        plugin: 'sbi-image-map',
+        plugin: 'sbi-annotated-image',
         mapNodes: []
       }
     },
