@@ -4,7 +4,7 @@
       <sb-asset-selector :uid="uid" field="image"></sb-asset-selector>
       <!-- Edit/Remove Buttons -->
       <div class="sbi-image-map__image-controls" v-if="model.image">
-        <SbButton class="sbi-image-map__button" size="small" label="Edit map" @click="openModal" />
+        <SbButton class="sbi-image-map__button" size="small" label="Edit annotations" @click="openModal" />
         <SbButton variant="danger" class="sbi-image-map__button" size="small" label="Remove image" @click="removeImage" />
       </div>
       <!-- Preview -->
@@ -26,7 +26,7 @@
     <div v-if="modalIsOpen" @mouseup=stopDraggingNode>
       <!-- Controls -->
       <SbGroupButton size="small" hasSpaces variant="ghost" class="sbi-image-map__controls">
-        <SbButton icon="plus" label="Add node" @click=addNode />
+        <SbButton size="small" icon="plus" label="Add annotation" @click=addNode />
         <SbButton icon="close" size="small" variant="danger" label="Close and save" @click=closeModal />
       </SbGroupButton>
       <!-- Map -->
