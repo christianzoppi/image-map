@@ -90,12 +90,12 @@ export default {
       }
     },
     openModal(){
-      this.mapNodes = [...this.model.mapNodes]
+      this.mapNodes = JSON.parse(JSON.stringify(this.model.mapNodes))
       this.$emit('toggle-modal', true)
       this.modalIsOpen = true
     },
     saveChanges() {
-      this.model.mapNodes = [...this.mapNodes]
+      this.model.mapNodes = JSON.parse(JSON.stringify(this.mapNodes))
     },
     closeModal(){
       this.$emit('toggle-modal', false)
@@ -130,7 +130,6 @@ export default {
       this.mapNodes.splice(index, 1)
     },
     isDragging(index) {
-      console.log('dragging', this.dragging_index)
       return index === this.dragging_index
     },
     removeImage() {

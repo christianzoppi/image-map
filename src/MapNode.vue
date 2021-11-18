@@ -127,12 +127,12 @@ export default {
 
   .map-node__number-wrapper {
     font-size: 1.2rem;
-    height: 30px;
+    height: 18px;
     left: 50%;
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 30px;
+    width: 18px;
   }
 
   .map-node__number {
@@ -240,7 +240,7 @@ export default {
     background-color: #fd5fae;
     height: 0;
     left: calc(50% - 1px);
-    padding-top: calc(15px + 40%);
+    padding-top: 78%;
     position: absolute;
     transform-origin: top center;
     top: 50%;
