@@ -24,26 +24,33 @@
 
     <!-- Modal -->
     <div v-if="modalIsOpen" @mouseup=stopDraggingNode>
-      <!-- Controls -->
-      <SbGroupButton size="small" hasSpaces variant="ghost" class="sbi-image-map__controls">
-        <SbButton size="small" icon="plus" label="Add annotation" @click=addNode />
-        <SbButton icon="close" size="small" variant="danger" label="Close and save" @click=closeModal />
-      </SbGroupButton>
-      <!-- Map -->
-      <div class="sbi-image-map__image-wrapper" 
-            @mousemove=dragNode>
-        <img :src="model.image" class="sbi-image-map__image" ref="image" />
-        <ul class="sbi-image-map__nodes">
-          <li v-for="(node, index) in model.mapNodes" :key="index">
-            <MapNode 
-            :number=index 
-            :dragging="isDragging(index)"
-            :node=node
-            @selectedNode="() => startDraggingNode(index)"
-            @removeNode=removeNode
-            @setDirection=setNodeDirection></MapNode>
-          </li>
-        </ul>
+      <div class="sbi-image-map__modal-wrapper">
+        <div class="sbi-image-map__modal">
+          <!-- Controls -->
+          <div class="sbi-image-map__controls">
+            <SbGroupButton size="small" hasSpaces variant="ghost">
+              <SbButton size="small" icon="plus" label="Add annotation" @click=addNode />
+              <SbButton icon="star" size="small" variant="danger" :disabled="pendingChanges" label="Save" @click=saveChanges />
+              <SbButton icon="close" size="small" variant="danger" label="Close" @click=closeModal />
+            </SbGroupButton>
+          </div>
+          <!-- Map -->
+          <div class="sbi-image-map__image-wrapper" 
+                @mousemove=dragNode>
+            <img :src="model.image" class="sbi-image-map__image" ref="image" />
+            <ul class="sbi-image-map__nodes">
+              <li v-for="(node, index) in mapNodes" :key="index">
+                <MapNode 
+                :number=index 
+                :dragging="isDragging(index)"
+                :node=node
+                @selectedNode="() => startDraggingNode(index)"
+                @removeNode=removeNode
+                @setDirection=setNodeDirection></MapNode>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -65,7 +72,8 @@ export default {
     return {
       dragging: false,
       dragging_index: null,
-      modalIsOpen: false
+      modalIsOpen: false,
+      mapNodes: []
     }
   },
   methods: {
@@ -82,8 +90,12 @@ export default {
       }
     },
     openModal(){
+      this.mapNodes = [...this.model.mapNodes]
       this.$emit('toggle-modal', true)
       this.modalIsOpen = true
+    },
+    saveChanges() {
+      this.model.mapNodes = [...this.mapNodes]
     },
     closeModal(){
       this.$emit('toggle-modal', false)
@@ -104,18 +116,18 @@ export default {
         const imageRect = this.$refs.image.getBoundingClientRect()
         const delta_x = event.clientX - imageRect.left
         const delta_y = event.clientY - imageRect.top
-        const x_coord = delta_x >= 0 && delta_x <= imageRect.width ? delta_x / imageRect.width : this.model.mapNodes[this.dragging_index].x
-        const y_coord = delta_y >= 0 && delta_y <= imageRect.height ? delta_y / imageRect.height : this.model.mapNodes[this.dragging_index].y
-        this.model.mapNodes[this.dragging_index].x = x_coord
-        this.model.mapNodes[this.dragging_index].y = y_coord
-        this.model.mapNodes = this.model.mapNodes.slice()
+        const x_coord = delta_x >= 0 && delta_x <= imageRect.width ? delta_x / imageRect.width : this.mapNodes[this.dragging_index].x
+        const y_coord = delta_y >= 0 && delta_y <= imageRect.height ? delta_y / imageRect.height : this.mapNodes[this.dragging_index].y
+        this.mapNodes[this.dragging_index].x = x_coord
+        this.mapNodes[this.dragging_index].y = y_coord
+        this.mapNodes = this.mapNodes.slice()
       }
     },
     addNode() {
-      this.model.mapNodes = [...this.model.mapNodes, {x: 0.5, y: 0.5, direction: null}] 
+      this.mapNodes = [...this.mapNodes, {x: 0.5, y: 0.5, direction: null}] 
     },
     removeNode(index) {
-      this.model.mapNodes.splice(index, 1)
+      this.mapNodes.splice(index, 1)
     },
     isDragging(index) {
       console.log('dragging', this.dragging_index)
@@ -125,8 +137,13 @@ export default {
       this.model.image = ''
     },
     setNodeDirection(data) {
-      this.model.mapNodes[data.index].direction = data.direction
-      this.model.mapNodes = this.model.mapNodes.slice()
+      this.mapNodes[data.index].direction = data.direction
+      this.mapNodes = this.mapNodes.slice()
+    }
+  },
+  computed: {
+    pendingChanges() {
+      return JSON.stringify(this.mapNodes) === JSON.stringify(this.model.mapNodes)
     }
   },
   watch: {
@@ -165,6 +182,7 @@ export default {
 
   .sbi-image-map__image-wrapper {
     border: #cacaca;
+    display: inline-block;
     margin-top: 30px;
     position: relative;
     user-select: none;
@@ -176,6 +194,7 @@ export default {
 
   .sbi-image-map__image {
     display: block;
+    max-height: 600px;
   }
 
   .sbi-image-map__nodes {
@@ -187,5 +206,16 @@ export default {
   .sbi-image-map__close {
     display: block;
     margin: 0;
+  }
+
+  .sbi-image-map__modal {
+    display: inline-block;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .sbi-image-map__modal-wrapper {
+    display: flex;
+    justify-content: center;
   }
   </style>
