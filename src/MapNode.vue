@@ -142,6 +142,7 @@ export default {
     color: #fff;
     display: flex;
     height: 100%;
+    font-size: 12px;
     font-weight: 700;
     justify-content: center;
     width: 100%;
